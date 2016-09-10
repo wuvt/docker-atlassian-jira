@@ -5,12 +5,15 @@ ENV JIRA_HOME     /var/atlassian/jira
 ENV JIRA_INSTALL  /opt/atlassian/jira
 ENV JIRA_VERSION  7.2.1
 
+COPY internalca.pem /tmp/
+
 # Install Atlassian JIRA and helper tools and setup initial home
 # directory structure.
 RUN set -x \
     && apt-get update --quiet \
     && apt-get install --quiet --yes --no-install-recommends libtcnative-1 xmlstarlet \
     && apt-get clean \
+    && $JAVA_HOME/bin/keytool -import -noprompt -storepass changeit -trustcacerts -alias wuvtca -keystore $JAVA_HOME/jre/lib/security/cacerts -file /tmp/internalca.pem \
     && mkdir -p                "${JIRA_HOME}" \
     && mkdir -p                "${JIRA_HOME}/caches/indexes" \
     && chmod -R 700            "${JIRA_HOME}" \
